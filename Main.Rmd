@@ -1,0 +1,50 @@
+---
+title: "NYC Collisions"
+output: html_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+```{r}
+library("dplyr")
+library("ggplot2")
+library("gpclib")
+library("RColorBrewer")
+library("rgdal")
+library("sqldf")
+library("rgeos")
+library("graphics")
+library("grDevices")
+library("grid")
+library("maptools")
+setwd("~/Columbia/DATA")
+rawdata <- read.csv("NYPD_Motor_Vehicle_Collisions.csv", header=TRUE)
+
+names(rawdata)[4] <- "ZIP"
+data <- sqldf("select ZIP, count(*) as 'Collisions', sum(`NUMBER.OF.PERSONS.KILLED`) as 'Fatalities' from rawdata group by ZIP")
+setwd("~/Columbia/EDAV_Projects/DataAnalysis/Collisions")
+```
+
+Get map  
+
+```{r, echo=FALSE}
+setwd("~/Columbia/EDAV_Projects/DataAnalysis/Collisions/zip_codes_shp")
+zipmap <- readOGR(dsn=".","PostalBoundary")
+zipmap_nyc <- zipmap[zipmap$POSTAL %in% factor(data$ZIP),]
+zipmap_nyc_df <- fortify(zipmap_nyc)
+```
+
+Merge map and data
+
+```{r}
+map_data <- data.frame(id=rownames(zipmap_nyc@data), ZIP=zipmap_nyc@data$POSTAL)
+map_data <- merge(map_data, data, by="ZIP")
+map_df <- merge(zipmap_nyc_df, map_data, by="id")
+map_df$CollisionRange <- cut(map_df$Collisions, breaks=4, dig.lab=4)
+```
+
+Make plot
+
+```{r}
+ggplot(map_df) + aes(x=long, y=lat, group = group, fill=CollisionRange) + geom_polygon() + geom_path(color="white") + coord_equal() + scale_fill_brewer("Manhattan Collisions") + theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())
+```
