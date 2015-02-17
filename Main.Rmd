@@ -1,12 +1,12 @@
 ---
-title: "Manhattan Collisions"
+title: "NYC Collisions"
 output: html_document
 ---
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+This is a work in progress.
 
 ```{r, echo=TRUE}
-library("Cairo")
+#library("Cairo")
 library("dplyr")
 library("ggplot2")
 library("gpclib")
@@ -17,12 +17,9 @@ library("rgeos")
 library("graphics")
 library("grDevices")
 library("grid")
-library("maptools")
-library("tcltk")
 
-setwd("~/Columbia/DATA")
-rawdata <- read.csv("NYPD_Motor_Vehicle_Collisions-2014.csv", header=TRUE)
-setwd("~/Columbia/Collisions")
+setwd(".")
+rawdata <- read.csv("./DATA/NYPD_Motor_Vehicle_Collisions-2014.csv", header=TRUE)
 names(rawdata)[4] <- "ZIP"
 data <- sqldf("select ZIP, count(*) as 'Collisions', sum(`NUMBER.OF.PERSONS.KILLED`) as 'Fatalities', sum(`NUMBER.OF.CYCLIST.KILLED`) as 'BicycleFatalities', sum(`NUMBER.OF.CYCLIST.INJURED`) as 'BicycleInjuries' from rawdata where BOROUGH = 'MANHATTAN' group by ZIP")
 ```
@@ -30,17 +27,16 @@ data <- sqldf("select ZIP, count(*) as 'Collisions', sum(`NUMBER.OF.PERSONS.KILL
 Get map  
 
 ```{r, echo=TRUE}
-setwd("~/Columbia/Collisions/zip_codes_shp")
+setwd("./zip_codes_shp")
 zipmap <- readOGR(dsn=".","PostalBoundary")
 zipmap_nyc <- zipmap[zipmap$POSTAL %in% factor(data$ZIP),]
-setwd("~/Columbia/Collisions")
+setwd("../")
 ```
 
 Merge map with data by ZIP
 
 ```{r, echo=TRUE}
 zipmap_nyc_df <- fortify(zipmap_nyc)
-
 map_data <- data.frame(id=rownames(zipmap_nyc@data), ZIP=zipmap_nyc@data$POSTAL)
 map_data <- merge(map_data, data, by="ZIP")
 map_df   <- merge(zipmap_nyc_df, map_data, by="id")
@@ -65,19 +61,19 @@ p4 <- ggplot(map_df) + aes(x=long, y=lat, group = group, fill=BInjuryRange) + ge
 Save to svg files
 
 ```{r, echo=FALSE}
-svg(filename = "AllCollisionsPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
-print(p1)
+#svg(filename = "AllCollisionsPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
+#print(p1)
 
-svg(filename = "FatalitiesPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
-print(p2)
+#svg(filename = "FatalitiesPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
+#print(p2)
 
-svg(filename = "BikeFatalitiesPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
-print(p3)
+#svg(filename = "BikeFatalitiesPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
+#print(p3)
 
-svg(filename = "BikeInjuriesPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
-print(p4)
+#svg(filename = "BikeInjuriesPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
+#print(p4)
 
-dev.off()
+#dev.off()
 ```
 
 Show plots
