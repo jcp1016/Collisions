@@ -1,9 +1,9 @@
 ## NYC Collisions
-
-See work in progress:
-[All Manhattan Collisions 2014](AllCollisions.svg)
-[Fatalities](FatalitiesPlot.svg)
-[BikeFatalities](BikeFatalitiesPlot.svg)
+<br />
+See work in progress:<br />
+[All Manhattan Collisions 2014](AllCollisions.svg)<br />
+[Fatalities](FatalitiesPlot.svg)<br />
+[BikeFatalities](BikeFatalitiesPlot.svg)<br />
 [BikeInjuries](BikeInjuriesPlot.svg)
 
 
