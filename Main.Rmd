@@ -1,11 +1,12 @@
 ---
-title: "NYC Collisions"
+title: "Manhattan Collisions"
 output: html_document
 ---
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-```{r}
+```{r, echo=TRUE}
+library("Cairo")
 library("dplyr")
 library("ggplot2")
 library("gpclib")
@@ -17,34 +18,76 @@ library("graphics")
 library("grDevices")
 library("grid")
 library("maptools")
-setwd("~/Columbia/DATA")
-rawdata <- read.csv("NYPD_Motor_Vehicle_Collisions.csv", header=TRUE)
+library("tcltk")
 
+setwd("~/Columbia/DATA")
+rawdata <- read.csv("NYPD_Motor_Vehicle_Collisions-2014.csv", header=TRUE)
+setwd("~/Columbia/Collisions")
 names(rawdata)[4] <- "ZIP"
-data <- sqldf("select ZIP, count(*) as 'Collisions', sum(`NUMBER.OF.PERSONS.KILLED`) as 'Fatalities' from rawdata group by ZIP")
-setwd("~/Columbia/EDAV_Projects/DataAnalysis/Collisions")
+data <- sqldf("select ZIP, count(*) as 'Collisions', sum(`NUMBER.OF.PERSONS.KILLED`) as 'Fatalities', sum(`NUMBER.OF.CYCLIST.KILLED`) as 'BicycleFatalities', sum(`NUMBER.OF.CYCLIST.INJURED`) as 'BicycleInjuries' from rawdata where BOROUGH = 'MANHATTAN' group by ZIP")
 ```
 
 Get map  
 
-```{r, echo=FALSE}
-setwd("~/Columbia/EDAV_Projects/DataAnalysis/Collisions/zip_codes_shp")
+```{r, echo=TRUE}
+setwd("~/Columbia/Collisions/zip_codes_shp")
 zipmap <- readOGR(dsn=".","PostalBoundary")
 zipmap_nyc <- zipmap[zipmap$POSTAL %in% factor(data$ZIP),]
-zipmap_nyc_df <- fortify(zipmap_nyc)
+setwd("~/Columbia/Collisions")
 ```
 
-Merge map and data
+Merge map with data by ZIP
 
-```{r}
+```{r, echo=TRUE}
+zipmap_nyc_df <- fortify(zipmap_nyc)
+
 map_data <- data.frame(id=rownames(zipmap_nyc@data), ZIP=zipmap_nyc@data$POSTAL)
 map_data <- merge(map_data, data, by="ZIP")
-map_df <- merge(zipmap_nyc_df, map_data, by="id")
-map_df$CollisionRange <- cut(map_df$Collisions, breaks=4, dig.lab=4)
+map_df   <- merge(zipmap_nyc_df, map_data, by="id")
+
+map_df$CollisionRange <- cut(map_df$Collisions, breaks=quantile(map_df$Collisions), dig.lab=4, include.lowest=TRUE)
+map_df$BInjuryRange <- cut(map_df$BicycleInjuries, breaks=quantile(map_df$BicycleInjuries), dig.lab=3, include.lowest=TRUE)
 ```
 
-Make plot
+Make plots
 
-```{r}
-ggplot(map_df) + aes(x=long, y=lat, group = group, fill=CollisionRange) + geom_polygon() + geom_path(color="white") + coord_equal() + scale_fill_brewer("Manhattan Collisions") + theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())
+```{r, echo=TRUE}
+
+p1 <- ggplot(map_df) + aes(x=long, y=lat, group = group, fill=CollisionRange) + geom_polygon() + geom_path(color="white") + ggtitle("Manhattan Collisions - 2014") + xlab(NULL) + ylab(NULL) + coord_equal() + scale_fill_brewer("Number of Collisions (Range)") + theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())
+
+p2 <- ggplot(map_df) + aes(x=long, y=lat, group = group, fill=factor(Fatalities)) + geom_polygon() + geom_path(color="white") + ggtitle("Fatalities") + xlab(NULL) +  ylab(NULL) + coord_equal() + scale_fill_brewer("Number of Fatalities from Collisions - 2014") + theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())
+
+p3 <- ggplot(map_df) + aes(x=long, y=lat, group = group, fill=factor(BicycleFatalities)) + geom_polygon() + geom_path(color="white") + ggtitle("Cyclists Killed in Collisions - 2014") + xlab(NULL) +  ylab(NULL) + coord_equal() + scale_fill_brewer("Number Killed") + theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())
+
+p4 <- ggplot(map_df) + aes(x=long, y=lat, group = group, fill=BInjuryRange) + geom_polygon() + geom_path(color="white") + ggtitle("Cyclists Injuried in Collisions - 2014") + xlab(NULL) +  ylab(NULL) + coord_equal() + scale_fill_brewer("Number Injured (Range)") + theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())
+```
+
+Save to svg files
+
+```{r, echo=FALSE}
+svg(filename = "AllCollisionsPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
+print(p1)
+
+svg(filename = "FatalitiesPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
+print(p2)
+
+svg(filename = "BikeFatalitiesPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
+print(p3)
+
+svg(filename = "BikeInjuriesPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
+print(p4)
+
+dev.off()
+```
+
+Show plots
+
+```{r, echo=FALSE}
+print(p1)
+print(p2)
+print(p3)
+print(p4)
+```
+
+```{r, echo=TRUE}
 ```
