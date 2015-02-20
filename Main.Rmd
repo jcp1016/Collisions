@@ -6,22 +6,44 @@ output: html_document
 This is a work in progress.
 
 ```{r, echo=TRUE}
-#library("Cairo")
+setwd(".")
+#library("devtools")
+#devtools::install_github("/ropensci/plotly")
+
+library("Cairo")
 library("dplyr")
+library("extrafont")
+#library("ggmap")
 library("ggplot2")
+library("ggthemes")
 library("gpclib")
-library("RColorBrewer")
-library("rgdal")
-library("sqldf")
-library("rgeos")
 library("graphics")
 library("grDevices")
 library("grid")
+library("gridExtra")
+library("plotly")
+library("RColorBrewer")
+library("lubridate")
+library("reshape2")
+library("rgdal")
+library("rgeos")
+library("sqldf")
+#library("zipcode")
 
-setwd(".")
+
 rawdata <- read.csv("./DATA/NYPD_Motor_Vehicle_Collisions-2014.csv", header=TRUE)
 names(rawdata)[4] <- "ZIP"
-data <- sqldf("select ZIP, count(*) as 'Collisions', sum(`NUMBER.OF.PERSONS.KILLED`) as 'Fatalities', sum(`NUMBER.OF.CYCLIST.KILLED`) as 'BicycleFatalities', sum(`NUMBER.OF.CYCLIST.INJURED`) as 'BicycleInjuries' from rawdata where BOROUGH = 'MANHATTAN' group by ZIP")
+rawdata$DATE <- as.character(rawdata$DATE)
+
+data <- sqldf("select ZIP, count(*) as 'Collisions', sum(`NUMBER.OF.PERSONS.KILLED`) as 'Fatalities', sum(`NUMBER.OF.CYCLIST.KILLED`) as 'BicycleFatalities', sum(`NUMBER.OF.CYCLIST.INJURED`) as 'BicycleInjuries' from rawdata group by ZIP")
+
+rawdata$PDATE <- mdy(rawdata$DATE)
+rawdata$DAY   <- wday(rawdata$PDATE, label=TRUE, abbr=TRUE)
+
+ftotal <- sqldf("select sum(`NUMBER.OF.PERSONS.KILLED`) from rawdata")
+
+data_by_day   <- sqldf("select DAY, sum(`NUMBER.OF.PERSONS.KILLED`) as 'Fatalities' from rawdata group by DAY")
+data_by_day$Pct <- (data_by_day$Fatalities / as.numeric(ftotal)) * 100
 ```
 
 Get map  
@@ -37,32 +59,44 @@ Merge map with data by ZIP
 
 ```{r, echo=TRUE}
 zipmap_nyc_df <- fortify(zipmap_nyc)
-map_data <- data.frame(id=rownames(zipmap_nyc@data), ZIP=zipmap_nyc@data$POSTAL)
+map_data <- data.frame(id=rownames(zipmap_nyc@data), ZIP=zipmap_nyc@data$POSTAL, ZIPNAME=zipmap_nyc@data$NAME)
 map_data <- merge(map_data, data, by="ZIP")
 map_df   <- merge(zipmap_nyc_df, map_data, by="id")
 
 map_df$CollisionRange <- cut(map_df$Collisions, breaks=quantile(map_df$Collisions), dig.lab=4, include.lowest=TRUE)
-map_df$BInjuryRange <- cut(map_df$BicycleInjuries, breaks=quantile(map_df$BicycleInjuries), dig.lab=3, include.lowest=TRUE)
+#map_df$BInjuryRange   <- cut(map_df$BicycleInjuries, breaks=quantile(map_df$BicycleInjuries), dig.lab=3, include.lowest=TRUE)
 ```
 
 Make plots
 
 ```{r, echo=TRUE}
 
-p1 <- ggplot(map_df) + aes(x=long, y=lat, group = group, fill=CollisionRange) + geom_polygon() + geom_path(color="white") + ggtitle("Manhattan Collisions - 2014") + xlab(NULL) + ylab(NULL) + coord_equal() + scale_fill_brewer("Number of Collisions (Range)") + theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())
+p1 <- ggplot(map_df) + 
+        aes(long, lat, fill=CollisionRange, group=group) + 
+        geom_polygon() + 
+        geom_path(color="white", linetype=1, size=0.25) + 
+        ggtitle("Collisions Reported in New York City - 2014") + 
+        xlab(NULL) + ylab(NULL) + coord_equal() + 
+        scale_fill_brewer() + 
+        theme(axis.ticks = element_blank(), 
+              axis.text.x = element_blank(), 
+              axis.text.y = element_blank(), 
+              legend.title=element_blank())
 
-p2 <- ggplot(map_df) + aes(x=long, y=lat, group = group, fill=factor(Fatalities)) + geom_polygon() + geom_path(color="white") + ggtitle("Fatalities") + xlab(NULL) +  ylab(NULL) + coord_equal() + scale_fill_brewer("Number of Fatalities from Collisions - 2014") + theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())
+#p2 <- ggplot(map_df) + aes(x=long, y=lat, group = group, fill=factor(Fatalities)) + geom_polygon() + geom_path(color="white") + xlab(NULL) +  ylab(NULL) + coord_equal() + scale_fill_brewer("Fatalities") + theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank()) 
 
-p3 <- ggplot(map_df) + aes(x=long, y=lat, group = group, fill=factor(BicycleFatalities)) + geom_polygon() + geom_path(color="white") + ggtitle("Cyclists Killed in Collisions - 2014") + xlab(NULL) +  ylab(NULL) + coord_equal() + scale_fill_brewer("Number Killed") + theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())
+#p3 <- ggplot(map_df) + aes(x=long, y=lat, group = group, fill=factor(BicycleFatalities)) + geom_polygon() +  geom_path(color="white") + xlab(NULL) +  ylab(NULL) + coord_equal() + scale_fill_brewer("Cyclist Fatalities") + theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())  
 
-p4 <- ggplot(map_df) + aes(x=long, y=lat, group = group, fill=BInjuryRange) + geom_polygon() + geom_path(color="white") + ggtitle("Cyclists Injuried in Collisions - 2014") + xlab(NULL) +  ylab(NULL) + coord_equal() + scale_fill_brewer("Number Injured (Range)") + theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())
+#p4 <- ggplot(map_df) + aes(x=long, y=lat, group = group, fill=BInjuryRange) + geom_polygon() + geom_path(color="white") + ggtitle("Cyclists Injuried in Collisions") + xlab(NULL) +  ylab(NULL) + coord_equal() + scale_fill_brewer("Number Injured (Range)") + theme(axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())
+
+p5 <- ggplot(data_by_day, aes(x=DAY, y=Pct, fill=Pct)) + geom_bar(stat="identity") + scale_fill_gradient(low="#aaaaaa", high="#333333") + ggtitle("Fatal Collisions by Day of the Week") + theme_fivethirtyeight() + xlab(NULL) + ylab("% of Total") + guides(fill=FALSE) + scale_color_fivethirtyeight()
 ```
 
 Save to svg files
 
 ```{r, echo=FALSE}
-#svg(filename = "AllCollisionsPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
-#print(p1)
+svg(filename = "AllCollisionsPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
+print(p1)
 
 #svg(filename = "FatalitiesPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
 #print(p2)
@@ -73,16 +107,23 @@ Save to svg files
 #svg(filename = "BikeInjuriesPlot.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
 #print(p4)
 
-#dev.off()
+#svg(filename = "FatalitiesByDay.svg", width = 7, height = 7, onefile = TRUE, pointsize = 12, family = "sans", bg = "white", antialias = c("default", "none", "gray", "subpixel"))
+#print(p5)
+
+dev.off()
 ```
 
 Show plots
 
 ```{r, echo=FALSE}
 print(p1)
-print(p2)
-print(p3)
-print(p4)
+#print(p2)
+#print(p3)
+#print(p4)
+#print(p5)
+
+#py <- plotly()
+#py$ggplotly(p1, kwargs=list(world_readable=FALSE))
 ```
 
 ```{r, echo=TRUE}
