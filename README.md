@@ -1,13 +1,13 @@
 ## NYC Collisions
 ###### View the [R Markdown](Main.Rmd)
 <br />
-![All collisions](p1.png) 
+![All collisions](p1_small.png) 
 <br /><br />
-![Fatalities](p2.png) 
+![Fatalities](p2_small.png) 
 <br /><br />
-![Bicycle fatalities](p3.png) 
+![Bicycle fatalities](p3_small.png) 
 <br /><br />
-<img src="p4.png" alt="Collisions by day of the week" align="middle" style="max-width:100%; margin-left:10px;">
+![Collisions by day of the week](p4.png) 
 <br /><br />
 _Data Source:  NYC Open Data_
 <br />
