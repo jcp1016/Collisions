@@ -68,7 +68,7 @@ p1 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='tople
                      color='white',
                      alpha=.6, 
                      size=.3) + 
-        ggtitle("Collisions Reported in New York City - 2014") +
+        ggtitle("New York City Collisions Reported in 2014") +
         scale_fill_brewer("Collision Range") +
         theme(plot.title = element_text(size=16, face="bold"))
 
@@ -78,7 +78,7 @@ p2 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='tople
                      color='white',
                      alpha=.6, 
                      size=.3) + 
-        ggtitle("Collisions Reported in New York City - 2014") +
+        ggtitle("New York City Collisions Reported in 2014") +
         scale_fill_brewer("Fatalities") +
         theme(plot.title = element_text(size=16, face="bold"))
 
@@ -88,41 +88,39 @@ p3 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='tople
                      color='white',
                      alpha=.6, 
                      size=.3) + 
-        ggtitle("Collisions Reported in New York City - 2014") +
+        ggtitle("New York City Collisions Reported in 2014") +
         scale_fill_brewer("Bicycle Fatalities") +
         theme(plot.title = element_text(size=16, face="bold"))
 
 p4 <- ggplot(data_by_day, aes(x=DAY, y=Pct, fill=Pct)) + 
         geom_bar(stat="identity") + 
         scale_fill_gradient(low="#aaaaaa", high="#333333") + 
-        ggtitle("Fatal Collisions by Day of the Week") + 
+        ggtitle("New York City Fatal Collisions in 2014 by Day of the Week") + 
         theme_fivethirtyeight() + 
         xlab(NULL) + ylab("% of Total") + 
         guides(fill=FALSE) + 
         scale_color_fivethirtyeight()
 
-## Save to svg files
-svg(filename = "AllCollisionsPlot.svg", width=7, height=7, onefile=TRUE, pointsize=12, family="sans", bg="white", antialias=c("default", "none", "gray", "subpixel"))
-print(p1)
-dev.off()
-
-svg(filename = "FatalitiesPlot.svg", width=7, height=7, onefile=TRUE, pointsize=12, family="sans", bg="white", antialias=c("default", "none", "gray", "subpixel"))
-print(p2)
-dev.off()
-
-svg(filename = "BikeFatalitiesPlot.svg", width=7, height=7, onefile=TRUE, pointsize=12, family="sans", bg="white", antialias=c("default", "none", "gray", "subpixel"))
-print(p3)
-dev.off()
-
-svg(filename = "FatalitiesByDay.svg", width=7, height=7, onefile=TRUE, pointsize=12, family="sans", bg="white", antialias=c("default", "none", "gray", "subpixel"))
-print(p4)
-dev.off()
 
 ## Show plots
 print(p1)
 print(p2)
 print(p3)
 print(p4)
+
+## Save images
+png(filename="p1.png")
+print(p1)
+dev.off()
+png(filename="p2.png")
+print(p2)
+dev.off()
+png(filename="p3.png")
+print(p3)
+dev.off()
+png(filename="p4.png")
+print(p4)
+dev.off()
 
 ## Upload to plotly
 #py <- plotly()

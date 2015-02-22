@@ -111,11 +111,27 @@ p4 <- ggplot(data_by_day, aes(x=DAY, y=Pct, fill=Pct)) +
         scale_color_fivethirtyeight()
 
 ```
+
+Show plots and save as images
+
 ```{r, echo=FALSE}
 print(p1)
 print(p2)
 print(p3)
 print(p4)
+
+png(filename="p1.png")
+print(p1)
+dev.off()
+png(filename="p2.png")
+print(p2)
+dev.off()
+png(filename="p3.png")
+print(p3)
+dev.off()
+png(filename="p4.png")
+print(p4)
+dev.off()
 ```
 
 ```{r, echo=TRUE}
