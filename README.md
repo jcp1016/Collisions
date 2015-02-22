@@ -1,7 +1,7 @@
 ## NYC Collisions
 ###### View the [R Markdown](Main.Rmd)
 <br />
-![All collisions](AllCollisions.png) 
+![All collisions](p1.png) 
 <br /><br />
 ![Fatalities](Fatalities.png) 
 <br /><br />
