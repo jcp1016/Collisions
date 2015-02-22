@@ -6,10 +6,7 @@ author:  Janet Prumachuk
 
 ```{r, echo=TRUE}
 setwd(".")
-#library("devtools")
-#devtools::install_github("/ropensci/plotly")
 
-#library("Cairo")
 library("dplyr")
 library("extrafont")
 library("ggmap")
@@ -20,7 +17,6 @@ library("graphics")
 library("grDevices")
 library("grid")
 library("gridExtra")
-#library("plotly")
 library("RColorBrewer")
 library("lubridate")
 library("maptools")
@@ -29,8 +25,6 @@ library("rgdal")
 library("rgeos")
 library("sp")
 library("sqldf")
-#library("zipcode")
-
 
 rawdata <- read.csv("./DATA/NYPD_Motor_Vehicle_Collisions-2014.csv", header=TRUE)
 names(rawdata)[4] <- "ZIP"
