@@ -95,7 +95,7 @@ p3 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='tople
 p4 <- ggplot(data_by_day, aes(x=DAY, y=Pct, fill=Pct)) + 
         geom_bar(stat="identity") + 
         scale_fill_gradient(low="#aaaaaa", high="#333333") + 
-        ggtitle("New York City Fatal Collisions in 2014 by Day of the Week") + 
+        ggtitle("NYC Fatal Collisions in 2014 by Day of the Week") + 
         theme_fivethirtyeight() + 
         xlab(NULL) + ylab("% of Total") + 
         guides(fill=FALSE) + 
@@ -118,7 +118,7 @@ dev.off()
 png(filename="p3.png")
 print(p3)
 dev.off()
-png(filename="p4.png")
+png(filename="p4.png", width=593)
 print(p4)
 dev.off()
 
