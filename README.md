@@ -1,5 +1,5 @@
 ## NYC Collisions
-###### View the [R Markdown](Main.html)
+###### View the [R Markdown](Main.Rmd)
 <br />
 ![All collisions](AllCollisions.png) 
 <br /><br />
