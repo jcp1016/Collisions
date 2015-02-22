@@ -69,7 +69,8 @@ p1 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='tople
                      alpha=.6, 
                      size=.3) + 
         ggtitle("Collisions Reported in New York City - 2014") +
-        scale_fill_brewer("Collision Range")
+        scale_fill_brewer("Collision Range") +
+        theme(plot.title = element_text(size=16, face="bold"))
 
 p2 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='topleft') +
         geom_polygon(aes(long, lat, group=group, fill=factor(Fatalities)),
@@ -78,7 +79,8 @@ p2 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='tople
                      alpha=.6, 
                      size=.3) + 
         ggtitle("Collisions Reported in New York City - 2014") +
-        scale_fill_brewer("Fatalities")
+        scale_fill_brewer("Fatalities") +
+        theme(plot.title = element_text(size=16, face="bold"))
 
 p3 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='topleft') +
         geom_polygon(aes(long, lat, group=group, fill=factor(BicycleFatalities)),
@@ -87,7 +89,8 @@ p3 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='tople
                      alpha=.6, 
                      size=.3) + 
         ggtitle("Collisions Reported in New York City - 2014") +
-        scale_fill_brewer("Bicycle Fatalities")
+        scale_fill_brewer("Bicycle Fatalities") +
+        theme(plot.title = element_text(size=16, face="bold"))
 
 p4 <- ggplot(data_by_day, aes(x=DAY, y=Pct, fill=Pct)) + 
         geom_bar(stat="identity") + 
@@ -101,16 +104,18 @@ p4 <- ggplot(data_by_day, aes(x=DAY, y=Pct, fill=Pct)) +
 ## Save to svg files
 svg(filename = "AllCollisionsPlot.svg", width=7, height=7, onefile=TRUE, pointsize=12, family="sans", bg="white", antialias=c("default", "none", "gray", "subpixel"))
 print(p1)
+dev.off()
 
 svg(filename = "FatalitiesPlot.svg", width=7, height=7, onefile=TRUE, pointsize=12, family="sans", bg="white", antialias=c("default", "none", "gray", "subpixel"))
 print(p2)
+dev.off()
 
 svg(filename = "BikeFatalitiesPlot.svg", width=7, height=7, onefile=TRUE, pointsize=12, family="sans", bg="white", antialias=c("default", "none", "gray", "subpixel"))
 print(p3)
+dev.off()
 
 svg(filename = "FatalitiesByDay.svg", width=7, height=7, onefile=TRUE, pointsize=12, family="sans", bg="white", antialias=c("default", "none", "gray", "subpixel"))
 print(p4)
-
 dev.off()
 
 ## Show plots
