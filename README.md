@@ -7,7 +7,7 @@
 <br /><br />
 ![Bicycle fatalities](p3.png) 
 <br /><br />
-![Fatalities by day of the week]<img src="p4.png" align="middle">
+<img src="p4.png" alt="Collisions by day of the week" align="middle">
 <br /><br />
 _Data Source:  NYC Open Data_
 <br />
