@@ -95,12 +95,11 @@ p3 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='tople
 p4 <- ggplot(data_by_day, aes(x=DAY, y=Pct, fill=Pct)) + 
         geom_bar(stat="identity") + 
         scale_fill_gradient(low="#aaaaaa", high="#333333") + 
-        ggtitle("NYC Percentage of 2014 Fatal Collisions \nby Day of the Week") + 
+        ggtitle("NYC Percentage of Fatal Collisions \nby Day of the Week") + 
         theme_fivethirtyeight() + 
-        xlab(NULL) + ylab("% of Total") + 
+        xlab("2014") + ylab("% of Total") + 
         guides(fill=FALSE) + 
         scale_color_fivethirtyeight() 
-
 
 ## Show plots
 print(p1)
