@@ -125,10 +125,6 @@ print(p1)
 print(p2)
 print(p3)
 print(p4)
-
-## Upload to plotly
-#py <- plotly()
-#py$ggplotly(p1, kwargs=list(world_readable=FALSE))
 ```
 
 ```{r, echo=TRUE}
