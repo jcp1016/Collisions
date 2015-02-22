@@ -10,4 +10,6 @@
 ![Fatalities by day of the week](FatalitiesByDay.png)
 <br /><br />
 _Data Source:  NYC Open Data_
+<br />
+_Shapefiles: NYS GIS Clearinghouse_
 
