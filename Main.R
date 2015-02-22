@@ -1,11 +1,3 @@
----
-title: "NYC Collisions"
-output: html_document
----
-
-This is a work in progress.
-
-```{r, echo=TRUE}
 setwd(".")
 #library("devtools")
 #devtools::install_github("/ropensci/plotly")
@@ -30,8 +22,6 @@ library("rgdal")
 library("rgeos")
 library("sp")
 library("sqldf")
-#library("zipcode")
-
 
 rawdata <- read.csv("./DATA/NYPD_Motor_Vehicle_Collisions-2014.csv", header=TRUE)
 names(rawdata)[4] <- "ZIP"
@@ -55,32 +45,23 @@ data_by_day   <- sqldf("select DAY,
                        from rawdata 
                        group by DAY")
 data_by_day$Pct <- (data_by_day$Fatalities / as.numeric(ftotal)) * 100
-```
 
-Get map  
-
-```{r, echo=TRUE}
+## Get Map
 setwd("./zip_codes_shp")
 zipmap <- readOGR(dsn=".","PostalBoundary")
 zipmap_nyc <- zipmap[zipmap$POSTAL %in% factor(data$ZIP),]
 zipmap_nyc <- spTransform(zipmap_nyc, CRS("+proj=longlat + datum=WGS84"))
 setwd("../")
-```
 
-Merge map with data by ZIP
-
-```{r, echo=TRUE}
+## Merge map with data by zip
 zipmap_nyc_df <- fortify(zipmap_nyc)
 map_data <- data.frame(id=rownames(zipmap_nyc@data), ZIP=zipmap_nyc@data$POSTAL, ZIPNAME=zipmap_nyc@data$NAME)
 map_data <- merge(map_data, data, by="ZIP")
 map_df   <- merge(zipmap_nyc_df, map_data, by="id")
 
 map_df$CollisionRange <- cut(map_df$Collisions, breaks=quantile(map_df$Collisions), dig.lab=4, include.lowest=TRUE)
-```
 
-Make plots
-
-```{r, echo=TRUE}
+## Make plots
 p1 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='topleft') +
         geom_polygon(aes(long, lat, group=group, fill=CollisionRange), 
                      data=map_df, 
@@ -111,17 +92,13 @@ p3 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='tople
 p4 <- ggplot(data_by_day, aes(x=DAY, y=Pct, fill=Pct)) + 
         geom_bar(stat="identity") + 
         scale_fill_gradient(low="#aaaaaa", high="#333333") + 
-        ggtitle("NYC Fatal Collisions by Day of the Week - 2014") + 
+        ggtitle("Fatal Collisions by Day of the Week") + 
         theme_fivethirtyeight() + 
         xlab(NULL) + ylab("% of Total") + 
         guides(fill=FALSE) + 
         scale_color_fivethirtyeight()
 
-```
-
-Save to svg files
-
-```{r, echo=FALSE}
+## Save to svg files
 svg(filename = "AllCollisionsPlot.svg", width=7, height=7, onefile=TRUE, pointsize=12, family="sans", bg="white", antialias=c("default", "none", "gray", "subpixel"))
 print(p1)
 
@@ -135,11 +112,8 @@ svg(filename = "FatalitiesByDay.svg", width=7, height=7, onefile=TRUE, pointsize
 print(p4)
 
 dev.off()
-```
 
-Show plots
-
-```{r, echo=FALSE}
+## Show plots
 print(p1)
 print(p2)
 print(p3)
@@ -148,7 +122,3 @@ print(p4)
 ## Upload to plotly
 #py <- plotly()
 #py$ggplotly(p1, kwargs=list(world_readable=FALSE))
-```
-
-```{r, echo=TRUE}
-```
