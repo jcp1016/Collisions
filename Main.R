@@ -78,7 +78,7 @@ p2 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='tople
                      alpha=.6, 
                      size=.3) + 
         ggtitle("Collisions Reported in New York City - 2014") +
-        scale_fill_brewer("Number of Fatalities")
+        scale_fill_brewer("Fatalities")
 
 p3 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='topleft') +
         geom_polygon(aes(long, lat, group=group, fill=factor(BicycleFatalities)),

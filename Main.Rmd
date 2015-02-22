@@ -2,15 +2,14 @@
 title: "NYC Collisions"
 output: html_document
 ---
-
-This is a work in progress.
+author:  Janet Prumachuk
 
 ```{r, echo=TRUE}
 setwd(".")
 #library("devtools")
 #devtools::install_github("/ropensci/plotly")
 
-library("Cairo")
+#library("Cairo")
 library("dplyr")
 library("extrafont")
 library("ggmap")
@@ -97,7 +96,7 @@ p2 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='tople
                      alpha=.6, 
                      size=.3) + 
         ggtitle("Collisions Reported in New York City - 2014") +
-        scale_fill_brewer("Number of Fatalities")
+        scale_fill_brewer("Fatalities")
 
 p3 <- qmap('new york, ny', zoom=11, maptype='roadmap', color='bw', legend='topleft') +
         geom_polygon(aes(long, lat, group=group, fill=factor(BicycleFatalities)),
@@ -117,24 +116,6 @@ p4 <- ggplot(data_by_day, aes(x=DAY, y=Pct, fill=Pct)) +
         guides(fill=FALSE) + 
         scale_color_fivethirtyeight()
 
-```
-
-Save to svg files
-
-```{r, echo=FALSE}
-svg(filename = "AllCollisionsPlot.svg", width=7, height=7, onefile=TRUE, pointsize=12, family="sans", bg="white", antialias=c("default", "none", "gray", "subpixel"))
-print(p1)
-
-svg(filename = "FatalitiesPlot.svg", width=7, height=7, onefile=TRUE, pointsize=12, family="sans", bg="white", antialias=c("default", "none", "gray", "subpixel"))
-print(p2)
-
-svg(filename = "BikeFatalitiesPlot.svg", width=7, height=7, onefile=TRUE, pointsize=12, family="sans", bg="white", antialias=c("default", "none", "gray", "subpixel"))
-print(p3)
-
-svg(filename = "FatalitiesByDay.svg", width=7, height=7, onefile=TRUE, pointsize=12, family="sans", bg="white", antialias=c("default", "none", "gray", "subpixel"))
-print(p4)
-
-dev.off()
 ```
 
 Show plots

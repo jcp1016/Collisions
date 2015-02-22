@@ -1,9 +1,13 @@
 ## NYC Collisions
+###### View the [R Markdown](Main.html)
 <br />
-See work in progress:<br />
-[Reported Collisions in NYC - 2014](AllCollisionsPlot.svg)<br />
-[Fatalities Subset](FatalitiesPlot.svg)<br />
-[Bicycle Fatalities Subset](BikeFatalitiesPlot.svg)<br />
-[Bicycle Injuries Subset](BikeInjuriesPlot.svg)
-
+![All collisions](AllCollisions.png) 
+<br /><br />
+![Fatalities](Fatalities.png) 
+<br /><br />
+![Bicycle fatalities](BikeFatalities.png) 
+<br /><br />
+![Fatalities by day of the week](FatalitiesByDay.png)
+<br /><br />
+_Data Source:  NYC Open Data_
 
