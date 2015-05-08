@@ -8,7 +8,6 @@ author:  Janet Prumachuk
 setwd(".")
 
 library("dplyr")
-library("extrafont")
 library("ggmap")
 library("ggplot2")
 library("ggthemes")
@@ -24,29 +23,25 @@ library("reshape2")
 library("rgdal")
 library("rgeos")
 library("sp")
-library("sqldf")
 
 rawdata <- read.csv("./DATA/NYPD_Motor_Vehicle_Collisions-2014.csv", header=TRUE)
 names(rawdata)[4] <- "ZIP"
 rawdata$DATE <- as.character(rawdata$DATE)
 
-data <- sqldf("select ZIP, 
-              count(*) as 'Collisions', 
-              sum(`NUMBER.OF.PERSONS.KILLED`) as 'Fatalities', 
-              sum(`NUMBER.OF.CYCLIST.KILLED`) as 'BicycleFatalities', 
-              sum(`NUMBER.OF.CYCLIST.INJURED`) as 'BicycleInjuries' 
-              from rawdata 
-              group by ZIP")
+data <- group_by( rawdata, ZIP)
+data <- summarize( data, 
+                   Collisions = n(), 
+                   Fatalities = sum(`NUMBER.OF.PERSONS.KILLED`),
+                   BicycleFatalities = sum(`NUMBER.OF.CYCLIST.KILLED`),
+                   BicycleInjuries = sum(`NUMBER.OF.CYCLIST.INJURED`))
 
 rawdata$PDATE <- mdy(rawdata$DATE)
 rawdata$DAY   <- wday(rawdata$PDATE, label=TRUE, abbr=TRUE)
 
-ftotal <- sqldf("select sum(`NUMBER.OF.PERSONS.KILLED`) from rawdata")
+ftotal <- summarize(rawdata, sum(`NUMBER.OF.PERSONS.KILLED`))
 
-data_by_day   <- sqldf("select DAY, 
-                       sum(`NUMBER.OF.PERSONS.KILLED`) as 'Fatalities' 
-                       from rawdata 
-                       group by DAY")
+data_by_day <- group_by(rawdata, DAY)
+data_by_day <- summarize (data_by_day, Fatalities = sum(`NUMBER.OF.PERSONS.KILLED`))
 data_by_day$Pct <- (data_by_day$Fatalities / as.numeric(ftotal)) * 100
 ```
 
